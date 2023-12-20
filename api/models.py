@@ -24,7 +24,7 @@ class BaseModel(models.Model):
 
 
 class Image(BaseModel):
-    path = models.ImageField(upload_to="images/")
+    image = models.ImageField(upload_to="images/", width_field="width", height_field="height")
     width = models.IntegerField(null=False)
     height = models.IntegerField(null=False)
 
