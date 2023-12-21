@@ -24,7 +24,9 @@ class BaseModel(models.Model):
 
 
 class Image(BaseModel):
-    image = models.ImageField(upload_to="images/", width_field="width", height_field="height")
+    image = models.ImageField(
+        upload_to="images/", width_field="width", height_field="height"
+    )
     width = models.IntegerField(null=False)
     height = models.IntegerField(null=False)
 
@@ -33,13 +35,11 @@ class Image(BaseModel):
 
 
 class Annotation(MP_Node, BaseModel):
-    node_order_by = ['class_id']
+    node_order_by = ["class_id"]
 
-    image = models.OneToOneField(Image, on_delete=models.CASCADE)
+    image = models.OneToOneField(Image, on_delete=models.CASCADE, null=True)
     class_id = models.CharField(
-        max_length=100,
-        choices=AnnotationClass.choices,
-        null=False
+        max_length=100, choices=AnnotationClass.choices, null=False
     )
     start_x = models.IntegerField(null=False)
     start_y = models.IntegerField(null=False)
