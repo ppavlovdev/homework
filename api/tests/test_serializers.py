@@ -296,3 +296,24 @@ class TestAnnotationSerializer:
 
         instances[0].delete()
         instances[1].delete()
+
+    @pytest.mark.django_db
+    def test_annotation_update(self, annotation_dict, annotation):
+        annotation_dict["id"] = str(annotation.id)
+        annotation_dict["tags"] = ["49"]
+        annotation_dict["shape"]["start_x"] = 100
+
+        serializer = AnnotationSerializer(instance=annotation, data=annotation_dict)
+        serializer.is_valid()
+        instance: Annotation = serializer.save()
+
+        assert instance.class_id == "tooth"
+        assert instance.start_x == 100
+        assert instance.start_y == 0
+        assert instance.end_x == 10
+        assert instance.end_y == 10
+        assert instance.confirmed is False
+        assert instance.confidence_percent == 0.5
+        assert instance.tags == ["49"]
+
+        instance.delete()

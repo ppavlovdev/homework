@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import uuid
 from typing import cast, Literal, Optional
 
 from rest_framework import serializers
@@ -65,7 +66,9 @@ class AnnotationSerializer(serializers.ModelSerializer):
             instance.move(parent, pos="last-child")
         for key, value in validated_data.items():
             setattr(instance, key, value)
-        instance.save()
+        instance.save(
+            update_fields=[k for k in validated_data.keys() if k != "id"]
+        )
         return instance
 
     def to_internal_value(self, data: AnnotationDict) -> AnnotationFlatDict:
