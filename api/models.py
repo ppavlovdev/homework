@@ -37,7 +37,7 @@ class Image(BaseModel):
 class Annotation(MP_Node, BaseModel):
     node_order_by = ["class_id"]
 
-    image = models.OneToOneField(Image, on_delete=models.CASCADE, null=True)
+    image = models.ForeignKey(Image, on_delete=models.CASCADE, null=True)
     class_id = models.CharField(
         max_length=100, choices=AnnotationClass.choices, null=False
     )

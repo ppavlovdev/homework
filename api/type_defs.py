@@ -25,6 +25,7 @@ class Meta(TypedDict):
 
 class AnnotationDict(TypedDict):
     id: str
+    image: Optional[str]
     class_id: Literal["tooth", "caries"]
     shape: Shape
     relations: NotRequired[list[Relation]]
@@ -35,6 +36,7 @@ class AnnotationDict(TypedDict):
 
 class AnnotationFlatDict(TypedDict):
     id: str
+    image: Optional[str]
     class_id: Literal["tooth", "caries"]
     start_x: int
     start_y: int

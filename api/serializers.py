@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-import uuid
 from typing import cast, Literal, Optional
 
 from rest_framework import serializers
@@ -50,11 +49,15 @@ class AnnotationSerializer(serializers.ModelSerializer):
 
     def create(self, validated_data) -> Annotation:
         parent = validated_data.pop("parent", None)
+        image = validated_data.pop("image", None)
         if parent:
             parent = Annotation.objects.get(pk=parent)
             child = parent.add_child(**validated_data)
             return child
         instance = Annotation.add_root(**validated_data)
+        if image:
+            instance.image = image
+            instance.save(update_fields=["image"])
         return instance
 
     def update(
@@ -66,14 +69,13 @@ class AnnotationSerializer(serializers.ModelSerializer):
             instance.move(parent, pos="last-child")
         for key, value in validated_data.items():
             setattr(instance, key, value)
-        instance.save(
-            update_fields=[k for k in validated_data.keys() if k != "id"]
-        )
+        instance.save(update_fields=[k for k in validated_data.keys() if k != "id"])
         return instance
 
     def to_internal_value(self, data: AnnotationDict) -> AnnotationFlatDict:
         data_new: AnnotationFlatDict = {
             "id": data["id"],
+            "image": data.get("image", None),
             "class_id": data["class_id"],
             "start_x": data["shape"]["start_x"],
             "start_y": data["shape"]["start_y"],
@@ -91,31 +93,34 @@ class AnnotationSerializer(serializers.ModelSerializer):
 
     def to_representation(
         self, instance: Annotation
-    ) -> AnnotationDict | AnnotationExternalDict:
+    ) -> list[AnnotationDict] | AnnotationExternalDict:
         if not instance.confirmed:
-            return self._exclude_none(
-                {
-                    "id": str(instance.pk),
-                    "class_id": cast(Literal["tooth", "caries"], instance.class_id),
-                    "shape": {
-                        "start_x": instance.start_x,
-                        "start_y": instance.start_y,
-                        "end_x": instance.end_x,
-                        "end_y": instance.end_y,
-                    },
-                    "relations": [
-                        {"type": "child", "label_id": str(instance.get_parent().pk)}
-                    ]
-                    if instance.get_parent()
-                    else None,
-                    "tags": cast(Optional[list[str]], instance.tags),
-                    "surface": cast(Optional[list[str]], instance.surface),
-                    "meta": {
-                        "confirmed": instance.confirmed,
-                        "confidence_percent": instance.confidence_percent,
-                    },
-                }
-            )
+            return [
+                self._exclude_none(
+                    {
+                        "id": str(instance.pk),
+                        "class_id": cast(Literal["tooth", "caries"], instance.class_id),
+                        "shape": {
+                            "start_x": instance.start_x,
+                            "start_y": instance.start_y,
+                            "end_x": instance.end_x,
+                            "end_y": instance.end_y,
+                        },
+                        "relations": [
+                            {"type": "child", "label_id": str(instance.get_parent().pk)}
+                        ]
+                        if instance.get_parent()
+                        else None,
+                        "tags": cast(Optional[list[str]], instance.tags),
+                        "surface": cast(Optional[list[str]], instance.surface),
+                        "meta": {
+                            "confirmed": instance.confirmed,
+                            "confidence_percent": instance.confidence_percent,
+                        },
+                    }
+                )
+                for instance in Annotation.get_tree(instance)
+            ]
         else:
             return self._exclude_none(
                 {

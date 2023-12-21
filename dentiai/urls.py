@@ -17,6 +17,11 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path
 
+from api import views
+
 urlpatterns = [
     path("admin/", admin.site.urls),
+    path("api/images/", views.ImageViewSet.as_view({"get": "list", "post": "create"})),
+    path("api/images/<str:pk>/", views.ImageViewSet.as_view({"get": "retrieve", "delete": "destroy", "put": "update"})),
+    path("api/images/<str:image_id>/annotations/", views.ImageAnnotationView.as_view()),
 ]
