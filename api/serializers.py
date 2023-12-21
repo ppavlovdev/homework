@@ -56,6 +56,18 @@ class AnnotationSerializer(serializers.ModelSerializer):
         instance = Annotation.add_root(**validated_data)
         return instance
 
+    def update(
+        self, instance: Annotation, validated_data: AnnotationFlatDict
+    ) -> Annotation:
+        parent = validated_data.pop("parent", None)
+        if parent:
+            parent = Annotation.objects.get(pk=parent)
+            instance.move(parent, pos="last-child")
+        for key, value in validated_data.items():
+            setattr(instance, key, value)
+        instance.save()
+        return instance
+
     def to_internal_value(self, data: AnnotationDict) -> AnnotationFlatDict:
         data_new: AnnotationFlatDict = {
             "id": data["id"],
