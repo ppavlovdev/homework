@@ -9,6 +9,7 @@ from api.type_defs import AnnotationDict, AnnotationExternalDict, AnnotationFlat
 
 
 class ImageSerializer(serializers.ModelSerializer):
+    image = serializers.ImageField(use_url=True)
     width = serializers.IntegerField(read_only=True)
     height = serializers.IntegerField(read_only=True)
 

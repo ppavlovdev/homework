@@ -51,7 +51,7 @@ MIDDLEWARE = [
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
 ]
 
-ROOT_URLCONF = "dentiai.urls"
+ROOT_URLCONF = "app.urls"
 
 TEMPLATES = [
     {
@@ -78,7 +78,7 @@ WSGI_APPLICATION = "dentiai.wsgi.application"
 DATABASES = {
     "default": {
         "ENGINE": "django.db.backends.postgresql",
-        "NAME": "dentiai",
+        "NAME": "postgres",
         "USER": "postgres",
         "PASSWORD": "postgres",
         "HOST": "db",
