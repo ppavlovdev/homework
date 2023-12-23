@@ -1,3 +1,4 @@
+from django.shortcuts import get_object_or_404
 from rest_framework import viewsets
 from rest_framework.response import Response
 from rest_framework.views import APIView
@@ -12,13 +13,13 @@ class ImageViewSet(viewsets.ModelViewSet):
 
 
 class ImageAnnotationView(APIView):
-    def get(self, request, image_id, format=None):
-        annotation = Annotation.objects.filter(image_id=image_id)
+    def get(self, request, pk, format=None):
+        annotation = Annotation.objects.filter(image_id=pk)
         serializer = AnnotationSerializer(annotation, many=True)
         return Response(serializer.data)
 
-    def post(self, request, image_id, format=None):
-        image = Image.objects.get(pk=image_id)
+    def post(self, request, pk, format=None):
+        image = get_object_or_404(Image, pk=pk)
         data = request.data
         if isinstance(data, list):
             for i, annotation in enumerate(data):
